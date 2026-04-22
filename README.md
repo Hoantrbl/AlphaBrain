@@ -5,7 +5,7 @@
 ### A Modular Open-Source Framework for Embodied Intelligence Research
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Docs](https://img.shields.io/badge/Docs-Online-green.svg)](https://github.com/AlphaBrainGroup/AlphaBrain)
+[![Docs](https://img.shields.io/badge/Docs-Online-green.svg)](https://alphabraingroup.github.io/AlphaBrain/)
 [![HuggingFace](https://img.shields.io/badge/%F0%9F%A4%97-Models-orange.svg)](https://huggingface.co/AlphaBrainGroup)
 
 <p align="center">
@@ -52,7 +52,7 @@
 
 Full setup, training, evaluation, and deployment instructions live in our documentation site. Step-by-step guides, configuration references, and troubleshooting notes are all maintained there.
 
-👉 **[AlphaBrain Documentation →](https://github.com/AlphaBrainGroup/AlphaBrain)**
+👉 **[AlphaBrain Documentation →](https://alphabraingroup.github.io/AlphaBrain/)**
 
 ---
 

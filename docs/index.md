@@ -3,7 +3,7 @@
 **AlphaBrain** is the world’s first all-in-one, open-source community for embodied intelligence, built to be ready out of the box. We unifies multiple VLA architectures, world model backbones, biologically-inspired learning algorithms, and reinforcement learning paradigms under a single, extensible framework. AlphaBrain brings embodied AI within everyone’s reach.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/AlphaBrainGroup/AlphaBrain/main/assets/main_fig.png" width="95%" alt="VLA-Engine Architecture Overview"/>
+  <img src="https://raw.githubusercontent.com/AlphaBrainGroup/AlphaBrain/main/assets/main_fig.png" width="95%" alt="AlphaBrain Architecture Overview"/>
 </p>
 
 ---

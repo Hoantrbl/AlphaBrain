@@ -16,7 +16,7 @@ Set up the full AlphaBrain runtime environment.
 ## 1. Clone the Repository
 
 ```bash
-git clone <repo-url> && cd VLA-Engine-Developer
+git clone https://github.com/AlphaBrainGroup/AlphaBrain.git && cd AlphaBrain
 ```
 
 ---
@@ -24,8 +24,8 @@ git clone <repo-url> && cd VLA-Engine-Developer
 ## 2. Install Core Dependencies
 
 ```bash
-conda create -n vla_engine_developer python=3.10 -y
-conda activate vla_engine_developer
+conda create -n alphabrain python=3.10 -y
+conda activate alphabrain
 pip install -r requirements.txt
 pip install -e .
 ```
@@ -90,7 +90,7 @@ One-click LIBERO data download:
 
 ```bash
 export DEST=/path/to/data/directory
-bash examples/LIBERO/data_preparation.sh
+bash benchmarks/LIBERO/data_preparation.sh
 ```
 
 The script downloads and symlinks the following datasets:
@@ -102,10 +102,10 @@ The script downloads and symlinks the following datasets:
 | `libero_goal` | Goal-directed |
 | `libero_10` | Long-horizon |
 
-Directory layout:
+Directory layout (LeRobot format, used for training):
 
 ```
-${LIBERO_DATA_ROOT}/
+${LEROBOT_LIBERO_DATA_DIR}/
 ├── libero_spatial_no_noops_1.0.0_lerobot/
 ├── libero_object_no_noops_1.0.0_lerobot/
 ├── libero_goal_no_noops_1.0.0_lerobot/
@@ -116,18 +116,27 @@ ${LIBERO_DATA_ROOT}/
 
 ## 5. Configure Environment Variables
 
-Create `.env` at the project root:
+Copy `.env.example` and fill in the local paths:
 
 ```bash
-# Data paths
+cp .env.example .env
+```
+
+```bash
+# Pretrained model root (Qwen2.5-VL-3B-Instruct/, paligemma-3b-pt-224/, ...)
+PRETRAINED_MODELS_DIR=/your/path/to/pretrained_models
+
+# LeRobot-format LIBERO data root (used for training)
+LEROBOT_LIBERO_DATA_DIR=/your/path/to/LEROBOT_LIBERO_DATA
+
+# RLDS-format LIBERO data root (used for evaluation)
 LIBERO_DATA_ROOT=/your/path/to/IPEC-COMMUNITY
-LIBERO_HOME=../LIBERO
+
+# LIBERO project root (simulation env)
+LIBERO_HOME=/your/path/to/LIBERO
 
 # Python interpreter of the separate LIBERO evaluation conda env
 LIBERO_PYTHON=/your/path/to/miniconda3/envs/libero/bin/python
-
-# Pretrained model directory (relative to project root)
-PRETRAINED_MODELS_DIR=data/pretrained_models
 ```
 
 !!! note "`.env` is not version-controlled"

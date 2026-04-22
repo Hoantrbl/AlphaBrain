@@ -7,7 +7,7 @@ Brain-inspired VLA: pretrain a Spiking Neural Network action head with backprop,
 ## Prerequisites
 
 ```bash
-conda activate vla_engine_developer
+conda activate alphabrain
 # Same .env fields as Baseline VLA
 ```
 

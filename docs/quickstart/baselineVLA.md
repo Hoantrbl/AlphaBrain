@@ -7,7 +7,7 @@ Train and evaluate AlphaBrain's three base VLA frameworks — **PaliGemmaOFT**, 
 ## Prerequisites
 
 ```bash
-conda activate vla_engine_developer
+conda activate alphabrain
 cp .env.example .env                      # fill in the paths below
 ```
 

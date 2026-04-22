@@ -38,7 +38,7 @@ Detailed environment setup lives in [Installation](installation.md).
 Every quickstart assumes the same project layout:
 
 ```
-VLA-Engine-Developer/
+AlphaBrain/
 ├── .env                               # local paths (see Installation)
 ├── configs/
 │   ├── finetune_config.yaml          # single-entry training/eval modes
@@ -47,10 +47,11 @@ VLA-Engine-Developer/
 ├── scripts/
 │   ├── run_finetune.sh               # training launcher
 │   ├── run_eval.sh                   # eval launcher
+│   ├── run_base_vla/                 # Baseline VLA wrappers
 │   ├── run_brain_inspired_scripts/   # NeuroVLA wrappers
 │   ├── run_rl_scripts/               # RL-Token wrappers
 │   ├── run_continual_learning_scripts/
-│   └── run_world_model_scripts/
+│   └── run_world_model/              # World Model wrappers
 └── results/
     ├── training/<run_id>/            # finetune outputs
     └── evaluation/<run_id>/          # eval outputs
@@ -70,7 +71,7 @@ All launchers:
 Run these once before any capability page:
 
 1. Complete [Installation](installation.md) — main conda env + flash-attn + eval env + LIBERO data.
-2. Fill out `.env` with `PRETRAINED_MODELS_DIR`, `LIBERO_DATA_ROOT`, `LIBERO_HOME`, `LIBERO_PYTHON`.
+2. Fill out `.env` with `PRETRAINED_MODELS_DIR`, `LEROBOT_LIBERO_DATA_DIR`, `LIBERO_DATA_ROOT`, `LIBERO_HOME`, `LIBERO_PYTHON`.
 3. Download the backbone(s) you need (see each page's Prerequisites section).
 
 ---

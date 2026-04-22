@@ -7,6 +7,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Docs](https://img.shields.io/badge/Docs-Online-green.svg)](https://alphabraingroup.github.io/AlphaBrain/)
 [![HuggingFace](https://img.shields.io/badge/%F0%9F%A4%97-Models-orange.svg)](https://huggingface.co/AlphaBrainGroup)
+[![WeChat](https://img.shields.io/badge/WeChat-Group-07C160.svg)](assets/wechat.jpg)
 
 <p align="center">
   <img src="assets/main_fig.png" width="100%" alt="AlphaBrain Architecture Overview"/>
@@ -33,7 +34,7 @@
 </tr>
 <tr>
 <td width="50" align="center">🎯</td>
-<td><b>RL Token Training Paradigm</b> — The first open-source VLA training architecture based on <b>RL Token</b>, a novel architecture that compresses VLA hidden states through an information bottleneck, followed by off-policy Actor-Critic reinforcement learning.</td>
+<td><b>RLActionToken Training Paradigm</b> — The first open-source VLA training architecture based on <b>RL Token</b>, a novel architecture that compresses VLA hidden states through an information bottleneck, followed by off-policy Actor-Critic reinforcement learning.</td>
 
 </tr>
 <tr>
@@ -42,7 +43,7 @@
 </tr>
 <tr>
 <td width="50" align="center">📊</td>
-<td><b>Comprehensive Benchmark Suite</b> — Full adaptation to the latest embodied benchmarks with open-source support for <b>long-horizon task execution and memory</b>: LIBERO, LIBERO-plus, RoboCasa and more to come.</td>
+<td><b>Comprehensive Benchmark Suite</b> — Full adaptation to the latest embodied benchmarks with open-source support for <b>long-horizon task execution and memory</b>: LIBERO, LIBERO-plus, RoboCasa, RoboCasa365 and more to come.</td>
 </tr>
 </table>
 
@@ -58,7 +59,7 @@ Full setup, training, evaluation, and deployment instructions live in our docume
 
 ## 🔬 Key Features
 
-AlphaBrain delivers five core capabilities on a single stack: the **VLA framework family** as the base, with **NeuroVLA / RL-Token / Continual Learning / World Model** as composable capability modules. All capabilities share the same trainer, config system, and inference interface.
+AlphaBrain delivers five core capabilities on a single stack: the **VLA framework family** as the base, with **NeuroVLA / RLActionToken / Continual Learning / World Model** as composable capability modules. All capabilities share the same trainer, config system, and inference interface.
 
 ### VLA Frameworks
 
@@ -80,11 +81,11 @@ NeuroVLA integrates spiking neural networks with biological learning rules into 
 - **R-STDP Training** — Reward-Modulated Spike-Timing-Dependent Plasticity, supporting both hybrid (backprop + STDP) and pure STDP modes;
 - **Online STDP** — Test-time adaptation with zero backpropagation, using self-supervised reward signals from environment interaction.
 
-### RL Token (RLT) Online RL Fine-tuning
+### RLActionToken Online RL Fine-tuning
 
 A novel architecture that compresses VLA hidden states through an information bottleneck, followed by off-policy Actor-Critic reinforcement learning:
-- **Encoder-Decoder**: Extracts a compact RL token from the VLA's internal features to serve as the state representation for RL. 
-- **Two-Phase Training**: An initial adaptation stage to expose the RL token → RL fine-tuning with a frozen VLA.
+- **Encoder-Decoder**: Extracts a compact action token from the VLA's internal features to serve as the state representation for RL.
+- **Two-Phase Training**: An initial adaptation stage to expose the action token → RL fine-tuning with a frozen VLA.
 - **Low Resource Requirements**: The actual reinforcement learning gradient update phase involves a highly lightweight parameters.
 
 ### Continual Learning
@@ -129,6 +130,7 @@ We welcome contributions from the community — including new frameworks, benchm
 |:--------|:-----|
 | GitHub Issues | [Report bugs & request features](https://github.com/AlphaBrainGroup/AlphaBrain/issues) |
 | HuggingFace | [Models](https://huggingface.co/AlphaBrainGroup) |
+| WeChat Group | [Scan the QR code to join](assets/wechat.jpg) |
 
 ### Acknowledgments
 
@@ -152,10 +154,10 @@ AlphaBrain is mainly forked from [starVLA](https://github.com/starVLA/starVLA) a
 ## 📝 Citation
 
 ```bibtex
-@software{AlphaBrain2025,
+@software{AlphaBrain2026,
   title     = {AlphaBrain: a Modular Open-Source Framework for Embodied Intelligence Research},
   author    = {AlphaBrain Community},
-  year      = {2025},
+  year      = {2026},
   url       = {https://github.com/AlphaBrainGroup/AlphaBrain},
   license   = {MIT},
   doi       = {}

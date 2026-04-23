@@ -515,14 +515,27 @@ class WanEncoder(BaseWorldModelEncoder):
         self._clear_hooks()
 
         # Determine which layers to hook
+        # Priority:
+        #   1. self.config.intermediate_layer_ids (explicit list wins)
+        #   2. self.config.feature_layer_id (single layer — config intent)
+        #   3. Auto-select 4 evenly-spaced layers (legacy default)
         layer_ids = self.config.intermediate_layer_ids
         if layer_ids is None:
-            # Default: sample evenly across the transformer depth
-            num_layers = len(self.dit.blocks)
-            # Pick ~4 layers spread across the model
-            step = max(1, num_layers // 4)
-            layer_ids = list(range(step - 1, num_layers, step))
-            logger.info("Auto-selected intermediate layer ids: %s", layer_ids)
+            fl = getattr(self.config, "feature_layer_id", None)
+            if fl is not None:
+                layer_ids = [int(fl)]
+                logger.info(
+                    "Using feature_layer_id-derived single-layer hook: %s",
+                    layer_ids,
+                )
+            else:
+                num_layers = len(self.dit.blocks)
+                step = max(1, num_layers // 4)
+                layer_ids = list(range(step - 1, num_layers, step))
+                logger.info(
+                    "Auto-selected intermediate layer ids (legacy multi-mean): %s",
+                    layer_ids,
+                )
 
         for layer_id in layer_ids:
             if layer_id < 0 or layer_id >= len(self.dit.blocks):
@@ -607,6 +620,37 @@ class WanEncoder(BaseWorldModelEncoder):
 
         # Stack into batch: [B, z_dim, T', H', W']
         latent = torch.stack(latents, dim=0).to(device)
+
+        # ----- A/B multi-step denoise inference (env var) -----
+        # Drives denoise_future_frame for K steps; DiT hook captures layer
+        # features on every pass. Final snapshot = smallest-sigma step, most
+        # train-distribution-aligned. Single step (K=1, default) is unchanged.
+        import os as _os
+        _k = int(_os.environ.get("ENCODE_DENOISE_STEPS", "1"))
+        if _k > 1 and self.dit is not None and self.config.use_intermediate_features:
+            self._intermediate_features.clear()
+            _ = self.denoise_future_frame(
+                latent_t=latent,
+                text_embeds=text_embeds,
+                num_steps=_k,
+            )
+            if not self._intermediate_features:
+                raise RuntimeError(
+                    "multi-step inference: no intermediate features captured "
+                    "during denoise loop (hook not fired)"
+                )
+            # Aggregate all hooked layers' features (mean), matching the
+            # encode_images main-path feature aggregation. Each feature:
+            # [B, 2*tokens_per_frame, D] for 2-frame DiT input.
+            layer_ids = sorted(self._intermediate_features.keys())
+            stacked = torch.stack(
+                [self._intermediate_features[lid] for lid in layer_ids], dim=0,
+            )
+            features = stacked.mean(dim=0)          # [B, 2*tpf, D]
+            tokens_per_frame = features.shape[1] // 2
+            features = features[:, :tokens_per_frame, :]   # frame 0 only
+            return features.to(latent.device)
+        # ----- end multi-step branch -----
 
         if not self.config.use_intermediate_features or self.dit is None:
             # --- VAE-only mode: flatten spatial dims ---
@@ -1346,7 +1390,15 @@ class WanEncoder(BaseWorldModelEncoder):
         dit_output, B, out_dim, patch_size,
         T_p, H_p, W_p, F_lat, H_lat, W_lat, seq_len,
     ):
-        """Convert DiT output to spatial [B, out_dim, F, H, W] tensor."""
+        """Convert DiT output to spatial [B, out_dim, F, H, W] tensor.
+
+        WAN DiT returns List[Tensor] (per-batch slices). Stack to a batched
+        tensor first so downstream dim() dispatching works. Callers that
+        capture DiT directly-returned values (e.g. denoise_future_frame)
+        would otherwise hit: AttributeError: 'list' object has no attribute 'dim'.
+        """
+        if isinstance(dit_output, list):
+            dit_output = torch.stack(dit_output, dim=0)
         if dit_output.dim() == 5:
             return dit_output
         elif dit_output.dim() == 3:

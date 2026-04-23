@@ -61,6 +61,11 @@ framework:
     use_video_loss: true
     video_loss_weight: 1.0
     # WAN DiT action-feature layer (30 layers total, ~47% depth).
+    # NOTE: post-fix (2026-04-23) _register_hooks now honors this when
+    # intermediate_layer_ids is absent, yielding SINGLE-LAYER hook.
+    # WM-WAN22-v1 ckpt predates this fix and was trained with the
+    # legacy 4-layer auto-select mean ([6,13,20,27]). Re-training
+    # required to activate single-layer behavior.
     feature_layer_id: 14
     # Optional variant override; null = auto-detect from checkpoint_path
     # (path contains '14b'/'t2v' -> t2v-A14B, else ti2v-5B).

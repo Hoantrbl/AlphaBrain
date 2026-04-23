@@ -439,6 +439,40 @@ class Cosmos2DiffusersEncoder(BaseWorldModelEncoder):
     # Core encoding methods
     # -----------------------------------------------------------------
 
+    @torch.inference_mode()
+    def _encode_images_multistep_inner(
+        self, pixel_values: torch.Tensor, text_embeds=None, num_steps: int = 5,
+    ):
+        """Multi-step denoise variant of _encode_images_inner.
+
+        Drives denoise_future_frame's K-step Karras + 2-AB solver. The forward
+        hook on layer self._feature_layer is invoked on every DiT pass; after
+        the loop returns we read the last snapshot, which corresponds to the
+        smallest-sigma step (frame1 nearly clean). This is the most train-
+        distribution-aligned choice for the action head's visual tokens.
+        """
+        encoder_device = next(self.dit.parameters()).device
+        pixel_values = pixel_values.to(device=encoder_device, dtype=torch.bfloat16)
+        video = pixel_values.unsqueeze(2)
+        latent_t = self.vae.encode(video.to(torch.bfloat16))  # [B, 16, 1, H, W]
+
+        # Run the full denoise loop purely for its side-effect: the DiT forward
+        # hook captures layer-feature on every step. Discard the returned
+        # future_latent.
+        _ = self.denoise_future_frame(
+            latent_t=latent_t,
+            text_embeds=text_embeds,
+            num_steps=num_steps,
+        )
+
+        visual_tokens = self._intermediate_features.get(self._feature_layer)
+        if visual_tokens is None:
+            raise RuntimeError(
+                f"multi-step inference: layer-{self._feature_layer} "
+                f"intermediate feature not captured"
+            )
+        return visual_tokens
+
     def encode_to_latent(self, images: torch.Tensor) -> torch.Tensor:
         """Encode preprocessed images to VAE latent space only (no DiT forward).
 
@@ -561,15 +595,16 @@ class Cosmos2DiffusersEncoder(BaseWorldModelEncoder):
         Matches training self-attention context where frame0 tokens attend to
         both frame0 and frame1 tokens. Returns only frame0's layer-18 features.
 
-        During training, frame1 has random sigma ~ LogNormal(0,1); the
-        Flow-Matching convention for pure-noise frames is sigma -> sigma_max
-        (t -> 1). We therefore use sigma = _SIGMA_MAX (80.0) => t = 80/81
-        ~= 0.988 at inference time, aligned with the high-sigma tail of the
-        training distribution. We also set the noise latent to zeros so the
-        encoder output is fully deterministic (the frame1 contribution to
-        c_in * (x0 + sigma * eps) with eps=0 is just 0, paired with the
-        sigma_max timestep embedding).
+        A/B experiment hook: when env var ENCODE_DENOISE_STEPS>1, dispatch to
+        the multi-step denoise variant that calls denoise_future_frame() with
+        K steps. The DiT forward hook fires on every step, so the final
+        intermediate-feature snapshot corresponds to the last (smallest-sigma)
+        step, which should be the most train-distribution-aligned.
         """
+        import os as _os
+        _k = int(_os.environ.get("ENCODE_DENOISE_STEPS", "1"))
+        if _k > 1:
+            return self._encode_images_multistep_inner(pixel_values, text_embeds, num_steps=_k)
         encoder_device = next(self.dit.parameters()).device
         pixel_values = pixel_values.to(
             device=encoder_device, dtype=torch.bfloat16,
